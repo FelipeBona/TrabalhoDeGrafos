@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+// Felipe Karmann, Nicholas Nigro
 public class AnalisadorGrafo {
 
 	// Método para classificar o tipo do grafo
@@ -13,6 +14,7 @@ public class AnalisadorGrafo {
 		boolean completo = true;
 		boolean nulo = true;
 		int n = matriz.length;
+		
 
 		// Verificar se é dirigido
 		for (int i = 0; i < n; i++) {
