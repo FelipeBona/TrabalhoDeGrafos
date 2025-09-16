@@ -50,9 +50,13 @@ public class AnalisadorGrafo {
 			for (int i = 0; i < n; i++) {
 				int grau = 0;
 				for (int j = 0; j < n; j++) {
-					grau += (matriz[i][j] > 0) ? 1 : 0;
-					if (i == j && matriz[i][j] > 0)
-						grau++; // laço conta como 2
+					if (matriz[i][j] > 0) {
+						if (i == j) {
+							grau += 2; // laço conta como 2
+						} else {
+							grau += 1; // aresta normal conta como 1
+						}
+					}
 				}
 
 				if (primeiroGrau == -1) {
@@ -117,8 +121,11 @@ public class AnalisadorGrafo {
 						aresta = "(" + i + "-" + j + ")";
 					}
 
-					conjuntoArestas.add(aresta);
-					totalArestas++;
+					// Adicionar múltiplas vezes para arestas paralelas
+					for (int k = 0; k < matriz[i][j]; k++) {
+						conjuntoArestas.add(aresta);
+						totalArestas++;
+					}
 				}
 			}
 		}
@@ -126,7 +133,7 @@ public class AnalisadorGrafo {
 		return "Quantidade de arestas: " + totalArestas + "\nConjunto de arestas: " + conjuntoArestas.toString();
 	}
 
-	// Método para calcular graus dos vértices
+	// Método para calcular graus dos vértices - CORRIGIDO
 	public static String grausDoVertice(int[][] matriz) {
 		int n = matriz.length;
 		boolean dirigido = false;
@@ -154,20 +161,16 @@ public class AnalisadorGrafo {
 			resultado.append("Grafo Dirigido\n");
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-					grauSaida[i] += (matriz[i][j] > 0) ? 1 : 0;
-					grauEntrada[j] += (matriz[i][j] > 0) ? 1 : 0;
-				}
-
-				// Para laços, entrada e saída são contados separadamente
-				if (matriz[i][i] > 0) {
-					grauEntrada[i] += 1;
-					grauSaida[i] += 1;
+					// Grau de saída: soma dos valores da linha
+					grauSaida[i] += matriz[i][j];
+					// Grau de entrada: soma dos valores da coluna
+					grauEntrada[j] += matriz[i][j];
 				}
 
 				resultado.append("Vértice ").append(i).append(": grau de entrada = ").append(grauEntrada[i])
 						.append(", grau de saída = ").append(grauSaida[i]).append("\n");
 
-				sequenciaGraus.add(grauSaida[i]); // Usamos grau de saída para a sequência
+				sequenciaGraus.add(grauSaida[i]);
 				grauGrafo += grauSaida[i];
 			}
 		} else {
@@ -178,9 +181,9 @@ public class AnalisadorGrafo {
 				for (int j = 0; j < n; j++) {
 					if (matriz[i][j] > 0) {
 						if (i == j) {
-							graus[i] += 2; // Laço conta como 2
+							graus[i] += 2 * matriz[i][j]; // Laço conta como 2 para cada ocorrência
 						} else {
-							graus[i] += 1;
+							graus[i] += matriz[i][j]; // Aresta normal conta como 1 para cada ocorrência
 						}
 					}
 				}
@@ -236,6 +239,17 @@ public class AnalisadorGrafo {
 		// Exemplo de matriz de adjacência (grafo dirigido)
 		int[][] matrizDirigido = { { 0, 1, 0, 0 }, { 0, 0, 1, 1 }, { 1, 0, 0, 0 }, { 0, 0, 0, 0 } };
 
+		// Novo grafo: 4 vértices em formato de quadrado
+		// Vértices 0 e 1 têm arestas paralelas entre si
+		// Vértice 0 tem um laço
+		// Graus: V0=5, V1=3, V2=2, V3=2
+		int[][] matrizQuadrado = {
+			{ 1, 2, 1, 0 }, // Vértice 0: laço (1) + arestas paralelas para 1 (2) + aresta para 2 (1) = 1*2 + 2 + 1 = 5
+			{ 2, 0, 0, 1 }, // Vértice 1: arestas paralelas para 0 (2) + aresta para 3 (1) = 2 + 1 = 3
+			{ 1, 0, 0, 1 }, // Vértice 2: aresta para 0 (1) + aresta para 3 (1) = 1 + 1 = 2
+			{ 0, 1, 1, 0 }  // Vértice 3: aresta para 1 (1) + aresta para 2 (1) = 1 + 1 = 2
+		};
+
 		System.out.println("=== ANÁLISE DO GRAFO NÃO-DIRIGIDO ===\n");
 
 		System.out.println("1. Tipo do Grafo:");
@@ -270,5 +284,23 @@ public class AnalisadorGrafo {
 
 		System.out.println("4. Busca em Profundidade:");
 		System.out.println(buscaEmProfundidade(matrizDirigido));
+		System.out.println();
+
+		System.out.println("=== ANÁLISE DO GRAFO QUADRADO COM ARESTAS PARALELAS E LAÇO ===\n");
+
+		System.out.println("1. Tipo do Grafo:");
+		System.out.println(tipoDoGrafo(matrizQuadrado));
+		System.out.println();
+
+		System.out.println("2. Arestas do Grafo:");
+		System.out.println(arestasDoGrafo(matrizQuadrado));
+		System.out.println();
+
+		System.out.println("3. Graus dos Vértices:");
+		System.out.println(grausDoVertice(matrizQuadrado));
+		System.out.println();
+
+		System.out.println("4. Busca em Profundidade:");
+		System.out.println(buscaEmProfundidade(matrizQuadrado));
 	}
 }
